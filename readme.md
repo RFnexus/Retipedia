@@ -8,15 +8,15 @@ This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node
  `pip install libzim`
     
 
-3. Install the BeautifulSoup HTML parser package for converting the HTML from the .zim entry to Micron
+2. Install the BeautifulSoup HTML parser package for converting the HTML from the .zim entry to Micron
 
  `pip install beautifulsoup4`
 
-5. Move the contents of the git repo to your NomadNet `storage/pages/` directory
+3. Move the contents of the git repo to your NomadNet `storage/pages/` directory
 
-6. Ensure all micron files for the project are executable 
+4. Ensure all micron files for the project are executable 
 
-7. Modify `settings.py` and configure the archive_path to point to your .zim archive
+5. Modify `settings.py` and configure the archive_path to point to your .zim archive
 
 You can download .zim archives provided by the Kiwix project here:
 https://wiki.kiwix.org/wiki/Content_in_all_languages
