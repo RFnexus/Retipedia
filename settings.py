@@ -8,4 +8,4 @@ archive_type = "wikipedia"
 node_title = "Retipedia"
 
 # The LXMF address of the Node operator - this is an optional field that can be toggled on / off to display on the about page
-lxmf_address = ""
+lxmf_address = False
