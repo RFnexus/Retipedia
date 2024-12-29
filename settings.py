@@ -3,7 +3,7 @@
 root_folder = "Retipedia"
 
 # .zim archive settings
-archive_path = "/home/rfnx/zim/gutenberg.zim" 
+archive_path = "" 
 # What type of .zim archive the node is hosting - currently supported: wikipedia, gutenberg
 archive_type = "wikipedia"
 

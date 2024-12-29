@@ -2,6 +2,7 @@ import os
 from bs4 import BeautifulSoup
 import re
 import sys
+import settings
 
 
 # Formatting for Wikipedia archives in .zim format provided by the Kiwix project
@@ -10,7 +11,8 @@ import sys
 env_string = ""
 for e in os.environ:
   env_string += "{}={}\n".format(e, os.environ[e])
-archive_path = os.environ['var_archive_path']
+  
+archive_path = settings.archive_path
 
 def format_link(a_tag):
     # Use href if available otherwise, use the link's text
@@ -19,7 +21,7 @@ def format_link(a_tag):
     path = f'A/{text.replace(" ", "_").title()}'
     # Format as micron link with blue text
     if(text):
-        return f'`F00f`_`[{text}`:/page/entry.mu`archive_path={archive_path}|entry_path={href}]`_`f'
+        return f'`F00f`_`[{text}`:/page/{settings.root_folder}/entry.mu`entry_path={href}]`_`f'
     else:
         return "-"
 

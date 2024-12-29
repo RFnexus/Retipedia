@@ -15,7 +15,7 @@ env_string = ""
 for e in os.environ:
   env_string += "{}={}\n".format(e, os.environ[e])
 
-archive_path = os.environ['var_archive_path']
+archive_path = settings.archive_path
 entry_path = os.environ['var_entry_path']
 
 archive = Archive(archive_path)
