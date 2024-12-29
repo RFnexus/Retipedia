@@ -1,6 +1,6 @@
 
 # Retipedia - A searchable .zim wiki for NomadNet
-
+![A screenshot of Retipedia running in NomadNet](https://i.ibb.co/xMtSnd9/Screenshot-from-2024-12-28-21-34-09.png)
 This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node that provides searchable version of multiple sites using .zim archives provided by the [Kiwix project](https://wiki.kiwix.org/wiki/Content_in_all_languages)
 
 # Installation
@@ -23,6 +23,8 @@ This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node
 
 You can download .zim archives provided by the Kiwix project here:
 https://wiki.kiwix.org/wiki/Content_in_all_languages
+
+Retipedia currently supports all language Wikipedia .zim archives. 
 
 
 
