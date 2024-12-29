@@ -46,10 +46,10 @@ suggestions = list(suggestion.getResults(start_index, results_per_page))
 
 for idx, entry_path in enumerate(suggestions, start=1):
 	entry_title = zim.get_entry_by_path(entry_path).title
-	print(f"{start_index + idx}. `!`[{entry_title}`:/page/entry.mu`archive_path={archive_path}|entry_path={entry_path}]`!")
+	print(f"{start_index + idx}. `!`[{entry_title}`:/page/{settings.root_folder}/entry.mu`archive_path={archive_path}|entry_path={entry_path}]`!")
 
 # Pagination navigation
 if current_page > 1:
-	print(f'`F00f`_`[Previous Page`:/page/results.mu`search_query={search_query}|archive_path={archive_path}|page_number={current_page - 1}|search_query={search_query}]`_`f')
+	print(f'`F00f`_`[Previous Page`:/page/{settings.root_folder}/results.mu`search_query={search_query}|archive_path={archive_path}|page_number={current_page - 1}|search_query={search_query}]`_`f')
 if current_page < total_pages:
-	print(f'`F00f`_`[Next Page`:/page/results.mu`search_query={search_query}|archive_path={archive_path}|page_number={current_page + 1}]`_`f')
+	print(f'`F00f`_`[Next Page`:/page/{settings.root_folder}/results.mu`search_query={search_query}|archive_path={archive_path}|page_number={current_page + 1}]`_`f')

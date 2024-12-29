@@ -1,3 +1,4 @@
+
 # Retipedia - A searchable .zim wiki for NomadNet
 
 This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node that provides searchable version of multiple sites using .zim archives provided by the [Kiwix project](https://wiki.kiwix.org/wiki/Content_in_all_languages)
@@ -14,9 +15,11 @@ This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node
 
 3. Move the contents of the git repo to your NomadNet `storage/pages/` directory
 
-4. Ensure all micron files for the project are executable 
+4. Adjust root_folder in `settings.py` to where the page files for Retipedia are located
 
-5. Modify `settings.py` and configure the archive_path to point to your .zim archive
+5. Ensure all micron files for the project are executable 
+
+6. Modify `settings.py` and configure the archive_path to point to your .zim archive
 
 You can download .zim archives provided by the Kiwix project here:
 https://wiki.kiwix.org/wiki/Content_in_all_languages

@@ -1,16 +1,39 @@
 #!/bin/python3
 import os
-# Import the template 
-import template 
-# Import global settings 
 import settings
+from libzim.reader import Archive
+from libzim.search import Query, Searcher
+from libzim.suggestion import SuggestionSearcher
 
-header = '''
+ascii_art = r"""`c`F09f
+  ____           _     _                      _   _         
+ |  _ \\    ___  | |_  (_)  _ __     ___    __| | (_)   __ _ 
+ | |_) |  / _ \\ | __| | | | '_ \\   / _ \\  / _` | | | |  / _`   |
+ |  _ <  |  __/ | |_  | | | |_) | |  __/ | (_| | | | | (_| |
+ |_| \\_\\  \\___|  \\__| |_| | .__/   \\___|  \\__,_| |_|  \\__,_|
+                          |_|                               
+
+`f``"""
+
+
+search_icon = "🔍"
+
+
+header = f"""
 `c
-''' + settings.node_title + ''' `F00f`_`[[Info`:/page/info.mu`]]`_`f`b
+`Faaa{settings.node_title}`f |  \
+`F09f`_`[Info`:/page/{settings.root_folder}/info.mu]`_`f \
+
 `a
+--  `b
+
+`B111 {search_icon} `b  `B555`<search_query` >`b   \
+`F0ff`!`[Search`:/page/{settings.root_folder}/results.mu`*]`!`b `f
+
 -¯
-Search: `B888`<search_query` >`b
-`F0ff` `!`[Submit`:/page/results.mu`*|search_type='+search_type+']`!`b `f
--
-'''
+"""
+
+if settings.ascii_art_enabled:
+    print(ascii_art)
+
+

@@ -12,7 +12,7 @@ if(settings.lxmf_address):
 	print(f"Node Operator LXMF address: {settings.lxmf_address}")
 
 
-print("This node is running Retipedia v1.0")
+print("This node is running Retipedia v1.1")
 print("View the source code at https://github.com/RFnexus/Retipedia")
 print('`b')
 print(".zim archives provided by the Kiwix project  https://library.kiwix.org")
