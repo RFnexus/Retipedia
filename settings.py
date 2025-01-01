@@ -1,8 +1,9 @@
-# This is the root path of where the Retipedia files are contained in the .nomadnetwork storage/pages folder. 
-# You can adjust htis if you want it to point at somewhere else outside of the parent folder. 
+# This is the root path of where the Retipedia files are contained in the .nomadnetwork storage/pages folder.
+# In this example config, if your Retipedia folder is under .nomadnetwork/storage/pages/Retipedia, then the root folder would be "Retipedia"
+# You can adjust htis if you want it to point at somewhere else outside of the parent folder 
 root_folder = "Retipedia"
 
-# .zim archive settings
+# The full path to the .zim archive 
 archive_path = "" 
 # What type of .zim archive the node is hosting - currently supported: wikipedia, gutenberg
 archive_type = "wikipedia"
