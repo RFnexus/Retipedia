@@ -27,7 +27,7 @@ header = f"""
 `a
 --  `b
 
-`B111 {search_icon} `b  `B555`<search_query` >`b   \
+`B111 {search_icon} `b  `B555`<search_query`>`b   \
 `F0ff`!`[Search`:/page/{settings.root_folder}/results.mu`*]`!`b `f
 
 -¯
