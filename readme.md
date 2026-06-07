@@ -1,5 +1,11 @@
-# Retipedia V2
-
+### 07/06/26 - Retipedia V2
+- Formatting overhaul to add anchors, tables, inline citations and better page layouts
+- Support for multiple .zim archives
+- Add full Gutenberg parser
+- Parser improvements
+- Server-side caching
+- Option to read pages in sections for low-bandwidth users 
+- And more
 
 # Retipedia - A searchable .zim wiki for NomadNet
 ![A screenshot of Retipedia running in NomadNet](https://i.ibb.co/pvZsdfTV/Screenshot-from-2026-06-07-06-10-18.png)
