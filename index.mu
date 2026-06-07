@@ -1,11 +1,45 @@
 #!/bin/python3
 import os
-# Import the template 
-import template 
-import settings 
+import template
+import settings
+import archives
 
-# index.mu 
-print(template.header)
+print(template.render_header())
 
+rf = settings.root_folder
+items = archives.list_archives()
 
+print(">Available Archives")
+print("")
 
+if not items:
+    print("No archives configured.")
+    print("Set `!zims_dir`! in settings.py and run `!generate_meta.py`! to add archives.")
+else:
+    for it in items:
+        name = it["name"]
+        title = it["title"]
+        kind = it["type"]
+        desc = it["description"]
+        count = it["article_count"]
+        if kind == "wikipedia":
+            main = it["main_path"] or archives.main_path(name)
+            link = f"/page/{rf}/entry.mu`zim={name}|entry_path={main}"
+        elif kind in ("pdf", "video"):
+            link = None
+        else:
+            link = f"/page/{rf}/zim_index.mu`zim={name}"
+        if link:
+            print(f"`F33f`_`[{title}`:{link}]`_`f")
+        else:
+            print(f"`!{title}`! (not browsable in a text browser)")
+        info = []
+        if kind:
+            info.append(kind)
+        if count:
+            info.append(f"{count:,} articles")
+        if info:
+            print(f"`Faaa{' · '.join(info)}`f")
+        if desc:
+            print(desc)
+        print("")

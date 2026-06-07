@@ -1,6 +1,8 @@
+# Retipedia V2
+
 
 # Retipedia - A searchable .zim wiki for NomadNet
-![A screenshot of Retipedia running in NomadNet](https://i.ibb.co/xMtSnd9/Screenshot-from-2024-12-28-21-34-09.png)
+![A screenshot of Retipedia running in NomadNet](https://i.ibb.co/pvZsdfTV/Screenshot-from-2026-06-07-06-10-18.png)
 This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node that provides searchable version of multiple sites using .zim archives provided by the [Kiwix project](https://wiki.kiwix.org/wiki/Content_in_all_languages)
 
 # Installation
@@ -19,22 +21,17 @@ This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node
 
 5. Ensure all micron files for the project are executable 
 
-6. Modify `settings.py` and configure the archive_path to point to your .zim archive
+6. Point `zims_dir` in `settings.py` at a folder containing one or more `.zim` archives (a single `archive_path` is still supported as a fallback)
+
+7. Run `python3 generate_meta.py` once to scan the archives and write the per-archive metadata sidecars into the `zims/` folder. Re-run it whenever you add new archives.
 
 You can download .zim archives provided by the Kiwix project here:
-https://wiki.kiwix.org/wiki/Content_in_all_languages
+https://browse.library.kiwix.org
 
-Retipedia currently supports all language Wikipedia .zim archives. 
+The recommended .zim is `#wikipedia_en_all_nopic_2026-03` https://browse.library.kiwix.org/viewer#wikipedia_en_all_nopic_2026-03/User%3AThe_other_Kiwix_guy/Landing which provides 7,155,441 articles in English 
 
+Recommended Gutenberg .zim: https://ebookfoundation.org/openzim.html
 
+Retipedia currently supports all language Wikipedia .zim archives, Gutenberg .zim archives, and also implements a generic .zim parser for anything else. PRs are welcome
 
-
-
-## Todo
-
-- Allow for searching multiple .zim archives
-
-- Add additional Micron markdown support for Wikipedia .zim archives
-
-- Add Micron support for other .zim content
 

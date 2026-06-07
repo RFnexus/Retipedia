@@ -1,9 +1,6 @@
 #!/bin/python3
 import os
 import settings
-from libzim.reader import Archive
-from libzim.search import Query, Searcher
-from libzim.suggestion import SuggestionSearcher
 
 ascii_art = r"""`c`F09f
   ____           _     _                      _   _         
@@ -19,21 +16,26 @@ ascii_art = r"""`c`F09f
 search_icon = "🔍"
 
 
-header = f"""
+def render_header(zim=None):
+    rf = settings.root_folder
+    nav = f"`F09f`_`[Archives`:/page/{rf}/index.mu]`_`f | `F09f`_`[Info`:/page/{rf}/info.mu]`_`f"
+    head = f"""
 `c
-`Faaa{settings.node_title}`f |  \
-`F09f`_`[Info`:/page/{settings.root_folder}/info.mu]`_`f \
+`Faaa{settings.node_title}`f |  {nav} \
 
 `a
 --  `b
-
-`B111 {search_icon} `b  `B555`<search_query` >`b   \
-`F0ff`!`[Search`:/page/{settings.root_folder}/results.mu`*]`!`b `f
-
--¯
 """
+    if zim:
+        head += f"""
+`B111 {search_icon} `b  `B555`<search_query` >`b   \
+`F0ff`!`[Search`:/page/{rf}/results.mu`search_query|zim={zim}]`!`b `f
+"""
+    head += "\n-¯\n"
+    return head
+
+
+header = render_header()
 
 if settings.ascii_art_enabled:
     print(ascii_art)
-
-

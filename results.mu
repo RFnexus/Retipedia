@@ -1,55 +1,79 @@
 #!/bin/python3
 import os
-# Import the template 
 import template
-# Import global settings 
 import settings
-# Import libzim
-from libzim.reader import Archive
-from libzim.search import Searcher, Query
+import archives
+from formatting import common, gutenberg
 from libzim.suggestion import SuggestionSearcher
 
-### Setup ###
-# Import archive_path from settings
-archive_path = settings.archive_path
-zim = Archive(archive_path)
+rf = settings.root_folder
 
-# Get variables from input fields
-env_string = ""
-for e in os.environ:
-  env_string += "{}={}\n".format(e, os.environ[e])
+names = archives.available_names()
+zim = os.environ.get("var_zim") or (names[0] if names else None)
 
-# Pagination setup
-results_per_page = 15  
-current_page = int(os.getenv('var_page_number', 1))  # Default to page 1 if not specified
+print(template.render_header(zim))
 
-### Micron Content ###
-print(template.header)
 search_query = os.environ.get("field_search_query", "")
-if(search_query == ""):
-	search_query = os.environ.get("var_search_query", "")
-print(f">Searching For: {search_query}")
+if search_query == "":
+    search_query = os.environ.get("var_search_query", "")
 
-suggestion_searcher = SuggestionSearcher(zim)
-suggestion = suggestion_searcher.suggest(search_query)
-suggestion_count = suggestion.getEstimatedMatches()
-total_pages = (suggestion_count + results_per_page - 1) // results_per_page  # Calculate total number of pages
+results_per_page = 15
+try:
+    current_page = max(1, int(os.environ.get("var_page_number", 1)))
+except ValueError:
+    current_page = 1
 
-print(f">>>Page {current_page} | {suggestion_count} matches for {search_query}:")
+if not zim:
+    print(">No archive selected")
+    print(f"`F33f`_`[Choose an archive`:/page/{rf}/index.mu]`_`f")
+else:
+    archive = archives.open_archive(zim)
+    title = archives.load_meta(zim).get("title", zim)
+    print(f">Search: {search_query}")
+    print(f"`Faaain {title}`f")
+    print("")
 
-# Calculate start and end index for current page
-start_index = (current_page - 1) * results_per_page
-end_index = start_index + results_per_page
+    if not search_query.strip():
+        print("Type a query in the search field above.")
+    else:
+        searcher = SuggestionSearcher(archive)
+        suggestion = searcher.suggest(search_query)
+        total = suggestion.getEstimatedMatches()
+        total_pages = max(1, (total + results_per_page - 1) // results_per_page)
+        current_page = min(current_page, total_pages)
+        start = (current_page - 1) * results_per_page
 
-# Get suggestions for the current page
-suggestions = list(suggestion.getResults(start_index, results_per_page))
+        print(f">>{total} matches · page {current_page}/{total_pages}")
+        print("")
 
-for idx, entry_path in enumerate(suggestions, start=1):
-	entry_title = zim.get_entry_by_path(entry_path).title
-	print(f"{start_index + idx}. `!`[{entry_title}`:/page/{settings.root_folder}/entry.mu`archive_path={archive_path}|entry_path={entry_path}]`!")
+        results = list(suggestion.getResults(start, results_per_page))
+        is_gutenberg = archives.archive_type(zim) == "gutenberg"
+        if not results:
+            print("No matching entries.")
+        seen = set()
+        shown = 0
+        for path in results:
+            if is_gutenberg:
+                path = gutenberg.book_path(path)
+            if path in seen:
+                continue
+            seen.add(path)
+            try:
+                entry = archive.get_entry_by_path(path)
+                size_str = common.human_size(entry.get_item().size)
+            except Exception:
+                continue
+            shown += 1
+            link = f"/page/{rf}/entry.mu`zim={zim}|entry_path={path}"
+            parts = link + "|chunk=parts"
+            print(f"{start + shown}. `F33f`_`[{entry.title}`:{link}]`_`f `Faaa{size_str}`f · `F0af`_`[parts`:{parts}]`_`f")
 
-# Pagination navigation
-if current_page > 1:
-	print(f'`F00f`_`[Previous Page`:/page/{settings.root_folder}/results.mu`search_query={search_query}|archive_path={archive_path}|page_number={current_page - 1}|search_query={search_query}]`_`f')
-if current_page < total_pages:
-	print(f'`F00f`_`[Next Page`:/page/{settings.root_folder}/results.mu`search_query={search_query}|archive_path={archive_path}|page_number={current_page + 1}]`_`f')
+        print("")
+        safe_query = search_query.replace("`", "").replace("|", " ").replace("]", "")
+        nav = []
+        if current_page > 1:
+            nav.append(f"`F0af`_`[◀ Previous`:/page/{rf}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page - 1}]`_`f")
+        if current_page < total_pages:
+            nav.append(f"`F0af`_`[Next ▶`:/page/{rf}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page + 1}]`_`f")
+        if nav:
+            print("`c" + " · ".join(nav) + "`a")
