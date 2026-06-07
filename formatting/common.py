@@ -2,12 +2,13 @@ import re
 import posixpath
 from urllib.parse import unquote
 from bs4 import NavigableString, Tag
+import theme
 
 RENDER_VERSION = "2"
 
-LINK_COLOR = "33f"
-CITE_COLOR = "5bf"
-NAV_COLOR = "0af"
+LINK_COLOR = theme.LINK
+CITE_COLOR = theme.CITE
+NAV_COLOR = theme.NAV
 CODE_BG = "100"
 CODE_FG = "9d9"
 

@@ -1,6 +1,7 @@
 #!/bin/python3
 import os
 import settings
+import theme
 import archives
 import cache
 from formatting import common, wikipedia, generic, gutenberg
@@ -69,7 +70,7 @@ print(template.render_header(zim))
 
 if not zim:
     print("No archive selected.")
-    print(f"`F33f`_`[Choose an archive`:/page/{rf}/index.mu]`_`f")
+    print(f"`F{theme.LINK}`_`[Choose an archive`:/page/{rf}/index.mu]`_`f")
     raise SystemExit
 
 if not entry_path:
@@ -81,11 +82,11 @@ if not entry_path:
 def nav_line(idx, total, base):
     parts = []
     if idx > 1:
-        parts.append(f"`F0af`_`[◀ Prev`:/page/{rf}/entry.mu`{base}|chunk={idx - 1}]`_`f")
-    parts.append(f"`F0af`_`[Parts`:/page/{rf}/entry.mu`{base}|chunk=parts]`_`f")
-    parts.append(f"`F0af`_`[Full`:/page/{rf}/entry.mu`{base}]`_`f")
+        parts.append(f"`F{theme.NAV}`_`[◀ Prev`:/page/{rf}/entry.mu`{base}|chunk={idx - 1}]`_`f")
+    parts.append(f"`F{theme.NAV}`_`[Parts`:/page/{rf}/entry.mu`{base}|chunk=parts]`_`f")
+    parts.append(f"`F{theme.NAV}`_`[Full`:/page/{rf}/entry.mu`{base}]`_`f")
     if idx < total:
-        parts.append(f"`F0af`_`[Next ▶`:/page/{rf}/entry.mu`{base}|chunk={idx + 1}]`_`f")
+        parts.append(f"`F{theme.NAV}`_`[Next ▶`:/page/{rf}/entry.mu`{base}|chunk={idx + 1}]`_`f")
     return "`c" + " · ".join(parts) + "`a"
 
 
@@ -114,9 +115,9 @@ try:
     if chunk is None:
         actions = [f"`Faaa{size_str}`f"]
         if total > 1:
-            actions.append(f"`F0af`_`[⇊ {total} parts`:/page/{rf}/entry.mu`{base}|chunk=parts]`_`f")
-        actions.append(f"`F0af`_`[⤓ Micron {size_str}`:/page/{rf}/entry.mu`{base}|format=micron]`_`f")
-        actions.append(f"`F0af`_`[⤓ HTML {common.human_size(item.size)}`:/page/{rf}/entry.mu`{base}|format=html]`_`f")
+            actions.append(f"`F{theme.NAV}`_`[⇊ {total} parts`:/page/{rf}/entry.mu`{base}|chunk=parts]`_`f")
+        actions.append(f"`F{theme.NAV}`_`[⤓ Micron {size_str}`:/page/{rf}/entry.mu`{base}|format=micron]`_`f")
+        actions.append(f"`F{theme.NAV}`_`[⤓ HTML {common.human_size(item.size)}`:/page/{rf}/entry.mu`{base}|format=html]`_`f")
         print("`c" + " · ".join(actions) + "`a")
         print("-─")
         print(micron)
@@ -126,7 +127,7 @@ try:
         for level, sec_title, ci in common.section_index(chunks):
             sections.setdefault(ci, []).append(sec_title)
         print(f"`Faaa{size_str} of readable text · {total} {plural}`f")
-        print(f"`F0af`_`[Read full entry`:/page/{rf}/entry.mu`{base}]`_`f")
+        print(f"`F{theme.NAV}`_`[Read full entry`:/page/{rf}/entry.mu`{base}]`_`f")
         print("")
         print("Select a part to read:")
         print("")
@@ -134,7 +135,7 @@ try:
             here = sections.get(i) or (["Introduction"] if i == 1 else [])
             desc = ", ".join(here[:3])
             label = f"Part {i} — {common.human_size(common.byte_size(piece))}"
-            line = f"• `F0af`_`[{label}`:/page/{rf}/entry.mu`{base}|chunk={i}]`_`f"
+            line = f"• `F{theme.NAV}`_`[{label}`:/page/{rf}/entry.mu`{base}|chunk={i}]`_`f"
             if desc:
                 line += f"  `Faaa{desc}`f"
             print(line)

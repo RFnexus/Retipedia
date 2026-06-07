@@ -11,7 +11,7 @@
 ![A screenshot of Retipedia running in NomadNet](https://i.ibb.co/pvZsdfTV/Screenshot-from-2026-06-07-06-10-18.png)
 This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node that provides searchable version of multiple sites using .zim archives provided by the [Kiwix project](https://wiki.kiwix.org/wiki/Content_in_all_languages)
 
-# Installation
+## Installation
 1. Install the python-libzim package for reading .zim archives:
 
  `pip install libzim`
@@ -39,5 +39,6 @@ The recommended .zim is `#wikipedia_en_all_nopic_2026-03` https://browse.library
 Recommended Gutenberg .zim: https://ebookfoundation.org/openzim.html
 
 Retipedia currently supports all language Wikipedia .zim archives, Gutenberg .zim archives, and also implements a generic .zim parser for anything else. PRs are welcome
+
 
 

@@ -2,6 +2,7 @@
 import os
 import template
 import settings
+import theme
 import archives
 
 rf = settings.root_folder
@@ -13,7 +14,7 @@ print(template.render_header(zim))
 
 if not zim:
     print("No archive selected.")
-    print(f"`F33f`_`[Choose an archive`:/page/{rf}/index.mu]`_`f")
+    print(f"`F{theme.LINK}`_`[Choose an archive`:/page/{rf}/index.mu]`_`f")
     raise SystemExit
 
 meta = archives.load_meta(zim)
@@ -27,5 +28,5 @@ print("")
 
 main = archives.main_path(zim)
 if main:
-    print(f"`F33f`_`[Open main page`:/page/{rf}/entry.mu`zim={zim}|entry_path={main}]`_`f")
+    print(f"`F{theme.LINK}`_`[Open main page`:/page/{rf}/entry.mu`zim={zim}|entry_path={main}]`_`f")
 print("Use the search field above to find entries in this archive.")

@@ -18,6 +18,10 @@ archive_type = "wikipedia"
 # (e.g. 2048) for very slow HF links, raise it for faster connections.
 chunk_size = 4096
 
+# Accent color for the interface (ascii header, links, navigation, citations)
+# Options: "default" (blue), "red", "orange", "green"
+accent_color = "default"
+
 # Node settings
 ascii_art_enabled = True # Do you want to print an ASCII splash at the top? (Can save a small amount of time on page load if set to "False")
 

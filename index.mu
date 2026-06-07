@@ -2,6 +2,7 @@
 import os
 import template
 import settings
+import theme
 import archives
 
 print(template.render_header())
@@ -30,7 +31,7 @@ else:
         else:
             link = f"/page/{rf}/zim_index.mu`zim={name}"
         if link:
-            print(f"`F33f`_`[{title}`:{link}]`_`f")
+            print(f"`F{theme.LINK}`_`[{title}`:{link}]`_`f")
         else:
             print(f"`!{title}`! (not browsable in a text browser)")
         info = []
