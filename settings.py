@@ -7,6 +7,7 @@ root_folder = "Retipedia"
 # Directory containing one or more .zim archives to host. When set, Retipedia lists
 # every .zim in this folder on the index page. Run generate_meta.py once after adding
 # archives to create the per-archive metadata sidecars in the zims/ subfolder.
+# It must be an absolute path, like ~/myzims or /home/myuser/myzims
 zims_dir = ""
 
 # Optional single-archive fallback used when zims_dir is empty or unset.
