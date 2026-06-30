@@ -1,6 +1,7 @@
 # This is the root path of where the Retipedia files are contained in the .nomadnetwork storage/pages folder.
 # In this example config, if your Retipedia folder is under .nomadnetwork/storage/pages/Retipedia, then the root folder would be "Retipedia"
 # You can adjust this if you want it to point at somewhere else outside of the parent folder
+# Set this to None (or "") if the Retipedia files live directly in storage/pages with no subfolder
 root_folder = "Retipedia"
 
 # Directory containing one or more .zim archives to host. When set, Retipedia lists

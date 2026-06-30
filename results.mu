@@ -8,6 +8,7 @@ from formatting import common, gutenberg
 from libzim.suggestion import SuggestionSearcher
 
 rf = settings.root_folder
+page = f"/page/{rf}" if rf else "/page"
 
 names = archives.available_names()
 zim = os.environ.get("var_zim") or (names[0] if names else None)
@@ -26,7 +27,7 @@ except ValueError:
 
 if not zim:
     print(">No archive selected")
-    print(f"`F{theme.LINK}`_`[Choose an archive`:/page/{rf}/index.mu]`_`f")
+    print(f"`F{theme.LINK}`_`[Choose an archive`:{page}/index.mu]`_`f")
 else:
     archive = archives.open_archive(zim)
     title = archives.load_meta(zim).get("title", zim)
@@ -65,7 +66,7 @@ else:
             except Exception:
                 continue
             shown += 1
-            link = f"/page/{rf}/entry.mu`zim={zim}|entry_path={path}"
+            link = f"{page}/entry.mu`zim={zim}|entry_path={path}"
             parts = link + "|chunk=parts"
             print(f"{start + shown}. `F{theme.LINK}`_`[{entry.title}`:{link}]`_`f `Faaa{size_str}`f · `F{theme.NAV}`_`[parts`:{parts}]`_`f")
 
@@ -73,8 +74,8 @@ else:
         safe_query = search_query.replace("`", "").replace("|", " ").replace("]", "")
         nav = []
         if current_page > 1:
-            nav.append(f"`F{theme.NAV}`_`[◀ Previous`:/page/{rf}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page - 1}]`_`f")
+            nav.append(f"`F{theme.NAV}`_`[◀ Previous`:{page}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page - 1}]`_`f")
         if current_page < total_pages:
-            nav.append(f"`F{theme.NAV}`_`[Next ▶`:/page/{rf}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page + 1}]`_`f")
+            nav.append(f"`F{theme.NAV}`_`[Next ▶`:{page}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page + 1}]`_`f")
         if nav:
             print("`c" + " · ".join(nav) + "`a")

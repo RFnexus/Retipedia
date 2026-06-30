@@ -8,6 +8,7 @@ import archives
 print(template.render_header())
 
 rf = settings.root_folder
+page = f"/page/{rf}" if rf else "/page"
 items = archives.list_archives()
 
 print(">Available Archives")
@@ -25,11 +26,11 @@ else:
         count = it["article_count"]
         if kind == "wikipedia":
             main = it["main_path"] or archives.main_path(name)
-            link = f"/page/{rf}/entry.mu`zim={name}|entry_path={main}"
+            link = f"{page}/entry.mu`zim={name}|entry_path={main}"
         elif kind in ("pdf", "video"):
             link = None
         else:
-            link = f"/page/{rf}/zim_index.mu`zim={name}"
+            link = f"{page}/zim_index.mu`zim={name}"
         if link:
             print(f"`F{theme.LINK}`_`[{title}`:{link}]`_`f")
         else:

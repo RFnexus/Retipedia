@@ -6,8 +6,18 @@ from libzim.reader import Archive
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 META_DIR = os.path.join(PROJECT_DIR, "zims")
 
-ZIMS_DIR = getattr(settings, "zims_dir", None)
-SINGLE_PATH = getattr(settings, "archive_path", None)
+
+def resolve_path(path):
+    if not path:
+        return path
+    path = os.path.expanduser(path)
+    if not os.path.isabs(path):
+        path = os.path.join(PROJECT_DIR, path)
+    return path
+
+
+ZIMS_DIR = resolve_path(getattr(settings, "zims_dir", None))
+SINGLE_PATH = resolve_path(getattr(settings, "archive_path", None))
 SINGLE_TYPE = getattr(settings, "archive_type", "wikipedia")
 
 

@@ -22,7 +22,7 @@ INLINE_CODE = {"code", "kbd", "samp", "tt"}
 
 def new_ctx(root, zim=None, entry_path=""):
     return {
-        "root": root,
+        "root": f"/page/{root}" if root else "/page",
         "zim": zim,
         "entry_path": entry_path or "",
         "toc": [],
@@ -76,7 +76,7 @@ def entry_link(label, href, ctx):
     fields = f"entry_path={path}"
     if ctx.get("zim"):
         fields = f"zim={ctx['zim']}|" + fields
-    return f"`F{LINK_COLOR}`_`[{label}`:/page/{ctx['root']}/entry.mu`{fields}]`_`f"
+    return f"`F{LINK_COLOR}`_`[{label}`:{ctx['root']}/entry.mu`{fields}]`_`f"
 
 
 def anchor_link(label, target, ctx, color=None):

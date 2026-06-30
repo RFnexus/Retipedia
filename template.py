@@ -19,7 +19,8 @@ search_icon = "🔍"
 
 def render_header(zim=None):
     rf = settings.root_folder
-    nav = f"`F{theme.HEADER}`_`[Archives`:/page/{rf}/index.mu]`_`f | `F{theme.HEADER}`_`[Info`:/page/{rf}/info.mu]`_`f"
+    page = f"/page/{rf}" if rf else "/page"
+    nav = f"`F{theme.HEADER}`_`[Archives`:{page}/index.mu]`_`f | `F{theme.HEADER}`_`[Info`:{page}/info.mu]`_`f"
     head = f"""
 `c
 `Faaa{settings.node_title}`f |  {nav} \
@@ -30,7 +31,7 @@ def render_header(zim=None):
     if zim:
         head += f"""
 `B111 {search_icon} `b  `B555`<search_query` >`b   \
-`F{theme.BRIGHT}`!`[Search`:/page/{rf}/results.mu`search_query|zim={zim}]`!`b `f
+`F{theme.BRIGHT}`!`[Search`:{page}/results.mu`search_query|zim={zim}]`!`b `f
 """
     head += "\n-¯\n"
     return head

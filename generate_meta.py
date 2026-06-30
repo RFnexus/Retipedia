@@ -4,12 +4,13 @@ import re
 import json
 import sys
 import settings
+import archives
 from libzim.reader import Archive
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 META_DIR = os.path.join(PROJECT_DIR, "zims")
 
-ZIMS_DIR = getattr(settings, "zims_dir", None)
+ZIMS_DIR = archives.ZIMS_DIR
 
 
 def _meta(archive, *keys):
