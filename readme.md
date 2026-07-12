@@ -34,7 +34,7 @@ This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node
 You can download .zim archives provided by the Kiwix project here:
 https://browse.library.kiwix.org
 
-The recommended .zim is `#wikipedia_en_all_nopic_2026-03` https://browse.library.kiwix.org/viewer#wikipedia_en_all_nopic_2026-03/User%3AThe_other_Kiwix_guy/Landing which provides 7,155,441 articles in English 
+The recommended .zim is `#wikipedia_en_all_nopic` https://lb.download.kiwix.org/zim/wikipedia/wikipedia_en_all_nopic_2026-06.zim which provides 7,155,441 articles in English 
 
 Recommended Gutenberg .zim: https://ebookfoundation.org/openzim.html
 
