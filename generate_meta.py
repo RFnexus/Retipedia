@@ -112,7 +112,65 @@ def build_meta(path):
     }
 
 
+def validate_interpreter(value):
+    if not value:
+        return "no interpreter given"
+    if any(ord(c) < 32 or ord(c) == 127 for c in value):
+        return "interpreter contains control characters"
+    parts = value.split()
+    if len(parts) > 2:
+        return "a shebang can pass at most one argument (e.g. '/usr/bin/env python3')"
+    exe = parts[0]
+    if not os.path.isabs(exe):
+        return "'{0}' is not an absolute path".format(exe)
+    if not os.path.isfile(exe):
+        return "'{0}' does not exist".format(exe)
+    if not os.access(exe, os.X_OK):
+        return "'{0}' is not executable".format(exe)
+    if len(value) + 2 > 127:
+        return "shebang longer than 127 characters may be truncated by the kernel"
+    return None
+
+
+def fix_shebangs(interpreter):
+
+    error = validate_interpreter(interpreter)
+    if error:
+        print("Refusing to rewrite shebangs:", error)
+        return 1
+    shebang = "#!" + interpreter + "\n"
+    for name in sorted(os.listdir(PROJECT_DIR)):
+        if not name.endswith(".mu"):
+            continue
+        path = os.path.join(PROJECT_DIR, name)
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        if not lines or not lines[0].startswith("#!"):
+            print("skip (no shebang):", name)
+            continue
+        mode = os.stat(path).st_mode | 0o111
+        if lines[0] != shebang:
+            lines[0] = shebang
+            tmp = path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.writelines(lines)
+            os.chmod(tmp, mode)
+            os.replace(tmp, path)
+            
+            print("  -> {0} now uses {1}".format(name, interpreter))
+        else:
+            os.chmod(path, mode)
+
+            print("ok:", name)
+    return 0
+
+
 def main():
+    for arg in sys.argv[1:]:
+        if arg == "--fix-shebangs":
+            return fix_shebangs(sys.executable)
+        if arg.startswith("--fix-shebangs="):
+            return fix_shebangs(arg.split("=", 1)[1])
     if not ZIMS_DIR or not os.path.isdir(ZIMS_DIR):
         print("settings.zims_dir is not set to a valid directory")
         return 1

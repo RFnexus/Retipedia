@@ -31,6 +31,20 @@ This allows you to host a [NomadNet](https://github.com/markqvist/NomadNet) node
 
 7. Run `python3 generate_meta.py` once to scan the archives and write the per-archive metadata sidecars into the `zims/` folder. Re-run it whenever you add new archives.
 
+### Using a virtual environment (venv/conda)
+
+The `.mu` pages start with `#!/bin/python3`, so NomadNet runs them with the system Python by default. If you installed `libzim` and `beautifulsoup4` into a virtual environment instead, pages will crash with `FileNotFoundError`. To point every page at the environment's interpreter, run this from inside that environment:
+
+ `python3 generate_meta.py --fix-shebangs`
+
+To choose an interpreter explicitly ppass it after `=`  and use quotes if it contains spaces
+
+ `python3 generate_meta.py --fix-shebangs=/home/user/miniconda3/envs/nomad/bin/python3`
+
+ `python3 generate_meta.py "--fix-shebangs=/usr/bin/env python3"`
+
+To go back to the default just run it with `--fix-shebangs=/bin/python3`.
+
 You can download .zim archives provided by the Kiwix project here:
 https://browse.library.kiwix.org
 
