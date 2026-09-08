@@ -3,8 +3,10 @@ import os
 import re
 import json
 import sys
+import struct
 import settings
 import archives
+from formatting import gutenberg
 from libzim.reader import Archive
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +44,14 @@ def detect_type(archive, html):
                      _meta(archive, "Scraper")]).lower()
     if "gutenberg" in tags:
         return "gutenberg"
+    if "stack_exchange" in tags or "sotoki" in tags:
+        return "stackexchange"
+    if "ifixit" in tags:
+        return "ifixit"
+    if "mwoffliner" in tags or "wikipedia" in tags:
+        return "wikipedia"
+    if "medlineplus" in tags:
+        return "medlineplus"
     video = pdf = total = 0
     try:
         count = min(archive.all_entry_count, 300)
@@ -88,6 +98,24 @@ def make_description(archive, html, kind):
     return ""
 
 
+def check_zim(path):
+    try:
+        with open(path, "rb") as f:
+            header = f.read(80)
+    except OSError as ex:
+        if os.path.islink(path) and not os.path.exists(path):
+            return "symlink points to a missing file"
+        return ex.strerror
+    if len(header) < 80 or struct.unpack_from("<I", header)[0] != 0x044D495A:
+        return "not a ZIM file"
+    mime_list_pos, = struct.unpack_from("<Q", header, 56)
+    checksum_pos, = struct.unpack_from("<Q", header, 72)
+    size = os.path.getsize(path)
+    if mime_list_pos >= 80 and checksum_pos + 16 != size:
+        return "incomplete or corrupt download ({0:,} of {1:,} bytes)".format(size, checksum_pos + 16)
+    return None
+
+
 def build_meta(path):
     archive = Archive(path)
     html, main = _main_html(archive)
@@ -103,6 +131,8 @@ def build_meta(path):
         count = archive.article_count
     except Exception:
         count = None
+    if kind == "gutenberg":
+        count = len(gutenberg.load_json(archive, "full_by_title.js")) or count
     return {
         "title": title,
         "type": kind,
@@ -186,6 +216,10 @@ def main():
             print("skip (exists):", name)
             continue
         print("scanning:", name)
+        problem = check_zim(os.path.join(ZIMS_DIR, name))
+        if problem:
+            print("  failed:", problem)
+            continue
         try:
             meta = build_meta(os.path.join(ZIMS_DIR, name))
         except Exception as ex:

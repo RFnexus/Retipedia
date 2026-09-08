@@ -2,6 +2,7 @@
 import os
 import settings
 import theme
+import archives
 
 ascii_art = r"""`c`F09f
   ____           _     _                      _   _         
@@ -18,8 +19,7 @@ search_icon = "🔍"
 
 
 def render_header(zim=None):
-    rf = settings.root_folder
-    page = f"/page/{rf}" if rf else "/page"
+    page = archives.page_root()
     nav = f"`F{theme.HEADER}`_`[Archives`:{page}/index.mu]`_`f | `F{theme.HEADER}`_`[Info`:{page}/info.mu]`_`f"
     head = f"""
 `c

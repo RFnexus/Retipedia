@@ -1,5 +1,4 @@
-import settings
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, NavigableString, Tag, Comment
 from formatting.common import (
     norm_space, esc, render_inline, render_list, render_dl, render_blockquote,
     render_table, render_code, emit_blank, emit_text_block, collapse, new_ctx,
@@ -21,6 +20,8 @@ def clean_html(root):
 
 def render_blocks(node, ctx, lines, depth=0):
     for child in node.children:
+        if isinstance(child, Comment):
+            continue
         if isinstance(child, NavigableString):
             text = norm_space(esc(str(child))).strip()
             if text:
@@ -58,7 +59,7 @@ def html_to_micron(html_content, zim=None, entry_path=""):
     root = (soup.find(class_="mw-parser-output") or soup.find("main")
             or soup.find("article") or soup.body or soup)
     clean_html(root)
-    ctx = new_ctx(settings.root_folder, zim=zim, entry_path=entry_path)
+    ctx = new_ctx(zim=zim, entry_path=entry_path)
     lines = []
     render_blocks(root, ctx, lines)
     return "`:top\n" + collapse("\n".join(lines)) + "\n"
