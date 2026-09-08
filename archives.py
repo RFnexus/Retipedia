@@ -21,6 +21,20 @@ SINGLE_PATH = resolve_path(getattr(settings, "archive_path", None))
 SINGLE_TYPE = getattr(settings, "archive_type", "wikipedia")
 
 
+def root_folder():
+    marker = os.path.join(os.sep, "storage", "pages")
+    idx = PROJECT_DIR.rfind(marker)
+    rest = PROJECT_DIR[idx + len(marker):] if idx != -1 else None
+    if rest is None or (rest and not rest.startswith(os.sep)):
+        return getattr(settings, "root_folder", None)
+    return rest.strip(os.sep).replace(os.sep, "/")
+
+
+def page_root():
+    rf = root_folder()
+    return f"/page/{rf}" if rf else "/page"
+
+
 def meta_path(name):
     return os.path.join(META_DIR, os.path.basename(name) + ".meta")
 

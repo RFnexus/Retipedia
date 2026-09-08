@@ -7,8 +7,7 @@ import archives
 from formatting import common, gutenberg
 from libzim.suggestion import SuggestionSearcher
 
-rf = settings.root_folder
-page = f"/page/{rf}" if rf else "/page"
+page = archives.page_root()
 
 names = archives.available_names()
 zim = os.environ.get("var_zim") or (names[0] if names else None)
@@ -40,23 +39,42 @@ else:
     else:
         searcher = SuggestionSearcher(archive)
         suggestion = searcher.suggest(search_query)
-        total = suggestion.getEstimatedMatches()
-        total_pages = max(1, (total + results_per_page - 1) // results_per_page)
-        current_page = min(current_page, total_pages)
         start = (current_page - 1) * results_per_page
+        results = list(suggestion.getResults(start, results_per_page + 1))
+        has_next = len(results) > results_per_page
+        results = results[:results_per_page]
+        if has_next:
+            total = max(suggestion.getEstimatedMatches(), start + len(results) + 1)
+        else:
+            total = start + len(results)
+        total_pages = max(current_page, (total + results_per_page - 1) // results_per_page)
 
         print(f">>{total} matches · page {current_page}/{total_pages}")
         print("")
 
-        results = list(suggestion.getResults(start, results_per_page))
         is_gutenberg = archives.archive_type(zim) == "gutenberg"
         if not results:
             print("No matching entries.")
         seen = set()
         shown = 0
         for path in results:
+            fields = f"entry_path={path}"
             if is_gutenberg:
-                path = gutenberg.book_path(path)
+                listing = gutenberg.listing_fields(archive, path)
+                if listing:
+                    try:
+                        entry_title = archive.get_entry_by_path(path).title
+                    except KeyError:
+                        continue
+                    shown += 1
+                    tag = {"author": "author", "shelf": "bookshelf"}.get(listing.split("=")[0], "index")
+                    link = f"{page}/zim_index.mu`zim={zim}|{listing}"
+                    print(f"{start + shown}. `F{theme.LINK}`_`[{gutenberg.label(gutenberg.book_title(entry_title))}`:{link}]`_`f `Faaa{tag}`f")
+                    continue
+                book = gutenberg.book_path(path)
+                if archive.has_entry_by_path(book):
+                    path = book
+                fields = gutenberg.entry_fields(path)
             if path in seen:
                 continue
             seen.add(path)
@@ -66,16 +84,19 @@ else:
             except Exception:
                 continue
             shown += 1
-            link = f"{page}/entry.mu`zim={zim}|entry_path={path}"
+            entry_title = entry.title
+            if is_gutenberg:
+                entry_title = gutenberg.label(gutenberg.book_title(entry_title) if entry_title == path else entry_title)
+            link = f"{page}/entry.mu`zim={zim}|{fields}"
             parts = link + "|chunk=parts"
-            print(f"{start + shown}. `F{theme.LINK}`_`[{entry.title}`:{link}]`_`f `Faaa{size_str}`f · `F{theme.NAV}`_`[parts`:{parts}]`_`f")
+            print(f"{start + shown}. `F{theme.LINK}`_`[{entry_title}`:{link}]`_`f `Faaa{size_str}`f · `F{theme.NAV}`_`[parts`:{parts}]`_`f")
 
         print("")
         safe_query = search_query.replace("`", "").replace("|", " ").replace("]", "")
         nav = []
         if current_page > 1:
             nav.append(f"`F{theme.NAV}`_`[◀ Previous`:{page}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page - 1}]`_`f")
-        if current_page < total_pages:
+        if has_next:
             nav.append(f"`F{theme.NAV}`_`[Next ▶`:{page}/results.mu`zim={zim}|search_query={safe_query}|page_number={current_page + 1}]`_`f")
         if nav:
             print("`c" + " · ".join(nav) + "`a")

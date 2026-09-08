@@ -1,5 +1,5 @@
-import settings
-from bs4 import BeautifulSoup, NavigableString, Tag
+import media
+from bs4 import BeautifulSoup, NavigableString, Tag, Comment
 from formatting import common
 from formatting.common import (
     norm_space, esc, slug, clean_label, render_inline, render_list, render_dl,
@@ -19,14 +19,54 @@ TOC_PLACEHOLDER = "\x00RETIPEDIA_TOC\x00"
 
 
 def clean_html(root):
-    for tag in root.find_all(["script", "style", "link", "img", "figure",
-                              "audio", "video", "map", "meta"]):
+    for tag in root.find_all(["script", "style", "link", "audio", "video", "map", "meta"]):
         tag.decompose()
     for cls in REMOVE_CLASSES:
         for el in root.find_all(class_=cls):
             el.decompose()
     for el in root.find_all("sup", class_="noprint"):
         el.decompose()
+
+
+def _px(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def caption_text(node, fallback=""):
+    if not node:
+        return fallback
+    return norm_space(" ".join(t for t in node.find_all(string=True) if not t.find_parent("sup"))).strip()
+
+
+def lead_image(root, ctx):
+    box = root.find(class_="infobox")
+    if not box:
+        return ""
+    caption = box.find(class_="infobox-caption")
+    for img in box.find_all("img", src=True):
+        if _px(img.get("width")) >= 100:
+            return media.image_tag(img["src"], caption_text(caption, img.get("alt", "")), ctx)
+    return ""
+
+
+def render_figure(node, ctx, lines):
+    img = node.find("img", src=True)
+    if not img or _px(img.get("width")) < 40:
+        return
+    caption = node.find("figcaption")
+    tag = media.image_tag(img["src"], caption_text(caption, img.get("alt", "")), ctx)
+    if not tag:
+        return
+    emit_blank(lines)
+    lines.append(tag)
+    if caption:
+        text = norm_space(render_inline(caption, ctx)).strip()
+        if text:
+            lines.append(f"`Faaa{text}`f")
+    lines.append("")
 
 
 def _emit_heading(h, ctx, lines):
@@ -74,6 +114,8 @@ def render_references(node, ctx, lines):
 
 def render_blocks(node, ctx, lines, depth=0):
     for child in node.children:
+        if isinstance(child, Comment):
+            continue
         if isinstance(child, NavigableString):
             text = norm_space(esc(str(child))).strip()
             if text:
@@ -93,6 +135,8 @@ def render_blocks(node, ctx, lines, depth=0):
             _emit_heading(child, ctx, lines)
         elif name == "p":
             emit_text_block(lines, render_inline(child, ctx))
+        elif name == "figure":
+            render_figure(child, ctx, lines)
         elif name in ("ul", "ol"):
             if name == "ol" and "references" in classes:
                 render_references(child, ctx, lines)
@@ -128,16 +172,16 @@ def _build_toc(ctx):
 def html_to_micron(html_content, zim=None, entry_path=""):
     soup = BeautifulSoup(html_content, "html.parser")
     root = soup.find(class_="mw-parser-output") or soup.body or soup
+    ctx = new_ctx(zim=zim, entry_path=entry_path)
+    lead = lead_image(root, ctx)
     clean_html(root)
-
-    ctx = new_ctx(settings.root_folder, zim=zim, entry_path=entry_path)
 
     body_lines = []
     render_blocks(root, ctx, body_lines)
     body = collapse("\n".join(body_lines))
     body = body.replace(TOC_PLACEHOLDER, _build_toc(ctx))
 
-    document = "`:top\n" + body
+    document = "`:top\n" + (lead + "\n\n" if lead else "") + body
     if ctx["toc_inserted"]:
         document += f"\n\n`c`F{NAV_COLOR}`_`[↑ Back to top`#top]`_`f`a\n"
     return collapse(document) + "\n"

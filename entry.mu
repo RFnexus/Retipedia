@@ -4,21 +4,26 @@ import settings
 import theme
 import archives
 import cache
-from formatting import common, wikipedia, generic, gutenberg
+import media
+from formatting import common, wikipedia, generic, gutenberg, stackexchange, ifixit, medlineplus
 
-rf = settings.root_folder
-page = f"/page/{rf}" if rf else "/page"
+page = archives.page_root()
 
 names = archives.available_names()
 zim = os.environ.get("var_zim") or (names[0] if names else None)
 entry_path = os.environ.get("var_entry_path", "")
+book = os.environ.get("var_book", "")
 chunk = os.environ.get("var_chunk")
 fmt = os.environ.get("var_format")
+layout = os.environ.get("var_layout") or getattr(settings, "text_layout", "wide")
+text_width = getattr(settings, "text_width", 72)
 
 kind = archives.archive_type(zim) if zim else "generic"
 
-if kind == "gutenberg" and entry_path:
-    entry_path = gutenberg.book_path(entry_path)
+if chunk is None and kind == "gutenberg":
+    chunk = "parts"
+if chunk == "full":
+    chunk = None
 
 
 def dump_raw(text):
@@ -28,30 +33,48 @@ def dump_raw(text):
 
 def resolve_entry():
     archive = archives.open_archive(zim)
-    entry = archive.get_entry_by_path(entry_path)
+    path = entry_path
+    if kind == "gutenberg":
+        if book and not path:
+            path = gutenberg.path_for_id(archive, book)
+        mapped = gutenberg.book_path(path)
+        if mapped != path and archive.has_entry_by_path(mapped):
+            path = mapped
+    entry = archive.get_entry_by_path(path)
     if entry.is_redirect:
         entry = entry.get_redirect_entry()
-    return entry.title, entry.get_item()
+    title = entry.title
+    if kind == "gutenberg" and title == entry.path:
+        title = gutenberg.book_title(title)
+    return archive, title, entry.get_item()
 
 
 def render_micron(item, path):
-    validator = f"{item.size}-{common.RENDER_VERSION}"
+    validator = f"{item.size}-{common.RENDER_VERSION}-{kind}-{text_width}-{getattr(settings, 'images', False)}"
     micron = cache.get(zim, path, validator)
+    if micron is not None and media.missing(micron):
+        micron = None
     if micron is None:
         html = bytes(item.content).decode("utf-8", "replace")
         if kind == "wikipedia":
             micron = wikipedia.html_to_micron(html, zim=zim, entry_path=path)
         elif kind == "gutenberg":
             micron = gutenberg.html_to_micron(html, zim=zim, entry_path=path)
+        elif kind == "stackexchange":
+            micron = stackexchange.html_to_micron(html, zim=zim, entry_path=path)
+        elif kind == "ifixit":
+            micron = ifixit.html_to_micron(html, zim=zim, entry_path=path)
+        elif kind == "medlineplus":
+            micron = medlineplus.html_to_micron(html, zim=zim, entry_path=path)
         else:
             micron = generic.html_to_micron(html, zim=zim, entry_path=path)
         cache.put(zim, path, validator, micron)
     return micron
 
 
-if fmt in ("micron", "html") and zim and entry_path:
+if fmt in ("micron", "html") and zim and (entry_path or book):
     try:
-        title, item = resolve_entry()
+        archive, title, item = resolve_entry()
         path = item.path
         if not item.mimetype.startswith("text/html"):
             print("This entry is not a readable text document.")
@@ -65,6 +88,8 @@ if fmt in ("micron", "html") and zim and entry_path:
         print("Archive not found")
     raise SystemExit
 
+print(f"#!c={getattr(settings, 'page_cache', 604800)}")
+
 import template
 
 print(template.render_header(zim))
@@ -74,7 +99,7 @@ if not zim:
     print(f"`F{theme.LINK}`_`[Choose an archive`:{page}/index.mu]`_`f")
     raise SystemExit
 
-if not entry_path:
+if not entry_path and not book:
     print(f">{archives.load_meta(zim).get('title', zim)}")
     print("Use the search field above to find an entry.")
     raise SystemExit
@@ -85,16 +110,31 @@ def nav_line(idx, total, base):
     if idx > 1:
         parts.append(f"`F{theme.NAV}`_`[◀ Prev`:{page}/entry.mu`{base}|chunk={idx - 1}]`_`f")
     parts.append(f"`F{theme.NAV}`_`[Parts`:{page}/entry.mu`{base}|chunk=parts]`_`f")
-    parts.append(f"`F{theme.NAV}`_`[Full`:{page}/entry.mu`{base}]`_`f")
+    parts.append(f"`F{theme.NAV}`_`[Full`:{page}/entry.mu`{base}|chunk=full]`_`f")
     if idx < total:
         parts.append(f"`F{theme.NAV}`_`[Next ▶`:{page}/entry.mu`{base}|chunk={idx + 1}]`_`f")
     return "`c" + " · ".join(parts) + "`a"
 
 
+def layout_line(plain, current):
+    parts = []
+    for name, label in (("wide", "Wide"), ("narrow", "Narrow"), ("center", "Centered")):
+        if name == layout:
+            parts.append(f"`!{label}`!")
+        else:
+            fields = f"{plain}|layout={name}|chunk={current}"
+            parts.append(f"`F{theme.NAV}`_`[{label}`:{page}/entry.mu`{fields}]`_`f")
+    return "`Faaalayout:`f " + " · ".join(parts)
+
+
 try:
-    title, item = resolve_entry()
+    archive, title, item = resolve_entry()
     entry_path = item.path
     base = f"zim={zim}|entry_path={entry_path}"
+    if kind == "gutenberg":
+        base = f"zim={zim}|{gutenberg.entry_fields(entry_path)}"
+    plain = base
+    base += f"|layout={layout}"
 
     if kind in ("pdf", "video"):
         print(f">{title}")
@@ -104,12 +144,22 @@ try:
         print(f">{title}")
         print("This entry is not a readable text document.")
         raise SystemExit
+    listing = gutenberg.listing_fields(archive, entry_path) if kind == "gutenberg" else ""
+    if listing:
+        print(f">{title}")
+        print("This page is a book listing that is built by scripts in a web browser.")
+        print(f"`F{theme.LINK}`_`[Browse it in the directory index`:{page}/zim_index.mu`zim={zim}|{listing}]`_`f")
+        raise SystemExit
 
     micron = render_micron(item, entry_path)
+    if layout in ("narrow", "center"):
+        micron = common.reflow(micron, text_width, layout == "center")
     size_str = common.human_size(common.byte_size(micron))
     chunks = common.chunk_micron(micron, getattr(settings, "chunk_size", 4096))
     total = len(chunks)
     plural = "part" if total == 1 else "parts"
+    if chunk == "parts" and total == 1:
+        chunk = None
 
     print(f">{title}")
 
@@ -120,15 +170,18 @@ try:
         actions.append(f"`F{theme.NAV}`_`[⤓ Micron {size_str}`:{page}/entry.mu`{base}|format=micron]`_`f")
         actions.append(f"`F{theme.NAV}`_`[⤓ HTML {common.human_size(item.size)}`:{page}/entry.mu`{base}|format=html]`_`f")
         print("`c" + " · ".join(actions) + "`a")
+        print(layout_line(plain, "full"))
         print("-─")
         print(micron)
+        print("`a")
 
     elif chunk == "parts":
         sections = {}
         for level, sec_title, ci in common.section_index(chunks):
             sections.setdefault(ci, []).append(sec_title)
         print(f"`Faaa{size_str} of readable text · {total} {plural}`f")
-        print(f"`F{theme.NAV}`_`[Read full entry`:{page}/entry.mu`{base}]`_`f")
+        print(f"`F{theme.NAV}`_`[Read full entry`:{page}/entry.mu`{base}|chunk=full]`_`f")
+        print(layout_line(plain, "parts"))
         print("")
         print("Select a part to read:")
         print("")
@@ -149,8 +202,10 @@ try:
         nav = nav_line(idx, total, base)
         print(f"`c`Faaapart {idx}/{total} · {size_str} total`f`a")
         print(nav)
+        print(layout_line(plain, idx))
         print("-─")
         print(chunks[idx - 1])
+        print("`a")
         print("-─")
         print(nav)
 
