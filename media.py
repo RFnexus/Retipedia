@@ -34,7 +34,7 @@ def materialize(zim, entry_path):
     ext = EXTENSIONS.get(item.mimetype)
     if not ext or item.size > MAX_BYTES:
         return ""
-    folder = os.path.splitext(zim)[0]
+    folder = os.path.splitext(os.path.basename(zim))[0]
     name = hashlib.sha256(entry_path.encode("utf-8")).hexdigest()[:24] + "." + ext
     target = os.path.join(IMAGE_DIR, folder, name)
     if not os.path.isfile(target):

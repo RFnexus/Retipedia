@@ -317,7 +317,7 @@ def render_table(node, ctx, lines):
     if row_index < 2 or ncol == 0:
         return
     rows = drop_columns([[grid.get((r, c), " ") for c in range(ncol)] for r in range(row_index)])
-    widths = [max(len(r[c]) for r in rows) for c in range(len(rows[0]))]
+    widths = [max(3, max(len(r[c]) for r in rows)) for c in range(len(rows[0]))]
     for i, cols in enumerate(split_columns(widths, TABLE_WIDTH)):
         emit_blank(lines)
         lines.append("`t")
