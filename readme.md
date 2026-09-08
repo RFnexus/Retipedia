@@ -1,4 +1,4 @@
-### 08/09/26 - Retipedia v2.5
+### 08/09/26 - Retipedia v3
 - Reader adjustable text layouts
 - Gutenberg .zim bookshelf support and parser fixes
 - Initial StackExchange, iFixIt and MedlinePlus .zim archive support
@@ -81,7 +81,8 @@ https://browse.library.kiwix.org/#lang=&q=medline
 Retipedia currently supports Wikipedia in all languages, Gutenberg, StackExchange in all languages, iFixIt and MedlinePlus archives, and also implements a generic .zim parser for anything else. PRs are welcome
 
 ### Image support
-
+![A screenshot of iFixIt in Retipedia](https://rns.recipes/storage/forum/aIFyJeZtTVDmByWqQsllEvskfS2DBPxDrxS8coJu.png)
+![A screenshot of Wikipedia maxi in Retipedia](https://rns.recipes/storage/forum/KFOGWWo685zqZLyptLr7NQ4n1UKoBLUBayGxZuJ2.png)
 iFixIt and Wikipedia archives with pictures (maxi) can show their images in NomadNet 1.4.0 or newer on terminals with Kitty graphics support such as Konsole, iTerm2, Ghostty and Kitty. 
 
 Set `images = True` in `settings.py` to turn it on. Readers only download images when their own NomadNet `image_loading` setting allows it, and is safe for low-bandwidth links.
