@@ -11,6 +11,8 @@ page = archives.page_root()
 
 names = archives.available_names()
 zim = os.environ.get("var_zim") or (names[0] if names else None)
+if zim not in names:
+    zim = None
 
 print(template.render_header(zim))
 
@@ -20,7 +22,7 @@ if search_query == "":
 
 results_per_page = 15
 try:
-    current_page = max(1, int(os.environ.get("var_page_number", 1)))
+    current_page = max(1, min(int(os.environ.get("var_page_number", 1)), 100000))
 except ValueError:
     current_page = 1
 
@@ -71,6 +73,7 @@ else:
                     link = f"{page}/zim_index.mu`zim={zim}|{listing}"
                     print(f"{start + shown}. `F{theme.LINK}`_`[{gutenberg.label(gutenberg.book_title(entry_title))}`:{link}]`_`f `Faaa{tag}`f")
                     continue
+                author = gutenberg.book_author(archive, path)
                 book = gutenberg.book_path(path)
                 if archive.has_entry_by_path(book):
                     path = book
@@ -87,6 +90,8 @@ else:
             entry_title = entry.title
             if is_gutenberg:
                 entry_title = gutenberg.label(gutenberg.book_title(entry_title) if entry_title == path else entry_title)
+                if author:
+                    size_str = f"{gutenberg.label(author)} · {size_str}"
             link = f"{page}/entry.mu`zim={zim}|{fields}"
             parts = link + "|chunk=parts"
             print(f"{start + shown}. `F{theme.LINK}`_`[{entry_title}`:{link}]`_`f `Faaa{size_str}`f · `F{theme.NAV}`_`[parts`:{parts}]`_`f")

@@ -140,14 +140,14 @@ def render_guide(soup, ctx, lines):
         meta.append("by `f" + entry_link(text(author), author["href"], ctx) + "`Faaa")
     published = text(soup.select_one(".guide-published-date"))
     if published:
-        meta.append(published)
+        meta.append(esc(published))
     for item in soup.select(".guide-details-container .details-item"):
         label, value = text(item.find(class_="item-title")), text(item.find(class_="item-value"))
         if label and value:
-            meta.append(f"{label}: {value}")
+            meta.append(esc(f"{label}: {value}"))
     count = text(soup.select_one(".comments-count .stats-value"))
     if count:
-        meta.append(f"{count} comments")
+        meta.append(esc(f"{count} comments"))
     if meta:
         lines.append("`Faaa" + " · ".join(meta) + "`f")
         lines.append("")

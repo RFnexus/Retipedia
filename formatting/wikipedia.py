@@ -169,10 +169,21 @@ def _build_toc(ctx):
     return "\n".join(lines)
 
 
+def render_home(soup, ctx):
+    lines = ["`:top", ""]
+    for a in soup.select("a.item[href]"):
+        label = norm_space(a.get_text(" ", strip=True)).strip()
+        if label:
+            lines.append("• " + common.entry_link(label, a["href"], ctx))
+    return "\n".join(lines) + "\n"
+
+
 def html_to_micron(html_content, zim=None, entry_path=""):
     soup = BeautifulSoup(html_content, "html.parser")
-    root = soup.find(class_="mw-parser-output") or soup.body or soup
     ctx = new_ctx(zim=zim, entry_path=entry_path)
+    if not soup.find(class_="mw-parser-output") and soup.select_one("a.item[href]"):
+        return render_home(soup, ctx)
+    root = soup.find(class_="mw-parser-output") or soup.body or soup
     lead = lead_image(root, ctx)
     clean_html(root)
 

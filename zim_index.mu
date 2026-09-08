@@ -10,6 +10,8 @@ page = archives.page_root()
 
 names = archives.available_names()
 zim = os.environ.get("var_zim") or (names[0] if names else None)
+if zim not in names:
+    zim = None
 
 print(template.render_header(zim))
 
@@ -41,7 +43,7 @@ author = os.environ.get("var_author", "")
 shelf = os.environ.get("var_shelf", "")
 per_page = 20
 try:
-    current_page = max(1, int(os.environ.get("var_page_number", 1)))
+    current_page = max(1, min(int(os.environ.get("var_page_number", 1)), 100000))
 except ValueError:
     current_page = 1
 

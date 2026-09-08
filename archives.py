@@ -54,7 +54,7 @@ def load_meta(name):
 def zim_path(name):
     name = os.path.basename(name or "")
     if not name.endswith(".zim"):
-        raise ValueError("invalid archive name")
+        raise FileNotFoundError(name)
     if ZIMS_DIR:
         candidate = os.path.join(ZIMS_DIR, name)
         if os.path.isfile(candidate):

@@ -1,6 +1,7 @@
 import re
 import json
 import unicodedata
+from html import unescape
 from bs4 import BeautifulSoup, NavigableString, Tag, Comment
 from formatting.common import (
     norm_space, esc, guard, slug, render_inline, render_inline_node, render_list,
@@ -24,6 +25,7 @@ _LEAD_RE = re.compile(r"^[\W_]+")
 _ARTICLE_RE = re.compile(r"^(the|a|an)\s+")
 _BODY_RE = re.compile(r"<body[^>]*class=\"([^\"]*)\"")
 _INDENT_RE = re.compile(r"\bi(\d+)\b")
+_AUTHOR_RE = re.compile(r'data-author-name="([^"]*)"')
 _LEAD_WS_RE = re.compile(r"\s*")
 _L10N_RE = re.compile(r"<script type=\"application/l10n\">(.*?)</script>", re.S)
 LISTING_CLASSES = {"home", "lcc_shelf_home", "bookshelf_home", "individual_book_shelf"}
@@ -91,6 +93,17 @@ def path_for_id(archive, book_id):
         if str(row[3]) == str(book_id):
             return book_entry(archive, row[0], row[3], suffix(archive))
     return ""
+
+
+def book_author(archive, path):
+    try:
+        item = archive.get_entry_by_path(path).get_item()
+    except KeyError:
+        return ""
+    if not item.mimetype.startswith("text/html"):
+        return ""
+    m = _AUTHOR_RE.search(bytes(item.content).decode("utf-8", "replace"))
+    return norm_space(unescape(m.group(1))).strip() if m else ""
 
 
 def author_name(archive, author_id):

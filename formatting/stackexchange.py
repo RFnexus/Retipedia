@@ -70,7 +70,7 @@ def render_question(soup, ctx, lines):
     meta = [f"▲ {q.get('data-score', '0')}"]
     viewed = soup.find(attrs={"title": _VIEWED_RE})
     if viewed:
-        meta.append(text(viewed).lower())
+        meta.append(esc(text(viewed).lower()))
     by = by_line(q, ctx, "asked")
     if by:
         meta.append(by)

@@ -11,6 +11,8 @@ page = archives.page_root()
 
 names = archives.available_names()
 zim = os.environ.get("var_zim") or (names[0] if names else None)
+if zim not in names:
+    zim = None
 entry_path = os.environ.get("var_entry_path", "")
 book = os.environ.get("var_book", "")
 chunk = os.environ.get("var_chunk")
@@ -88,7 +90,17 @@ if fmt in ("micron", "html") and zim and (entry_path or book):
         print("Archive not found")
     raise SystemExit
 
-print(f"#!c={getattr(settings, 'page_cache', 604800)}")
+resolved = None
+error = ""
+if zim and (entry_path or book):
+    try:
+        resolved = resolve_entry()
+    except KeyError:
+        error = "Can't find entry"
+    except FileNotFoundError:
+        error = "Archive not found"
+
+print(f"#!c={getattr(settings, 'page_cache', 604800) if resolved else 0}")
 
 import template
 
@@ -102,6 +114,10 @@ if not zim:
 if not entry_path and not book:
     print(f">{archives.load_meta(zim).get('title', zim)}")
     print("Use the search field above to find an entry.")
+    raise SystemExit
+
+if error:
+    print(error)
     raise SystemExit
 
 
@@ -128,7 +144,7 @@ def layout_line(plain, current):
 
 
 try:
-    archive, title, item = resolve_entry()
+    archive, title, item = resolved
     entry_path = item.path
     base = f"zim={zim}|entry_path={entry_path}"
     if kind == "gutenberg":
