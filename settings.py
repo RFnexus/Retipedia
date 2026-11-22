@@ -19,6 +19,12 @@ archive_type = "wikipedia"
 # (e.g. 2048) for very slow HF links, raise it for faster connections.
 chunk_size = 4096
 
+# "Full" view of very large entries (whole books) is split into pages of this
+# many bytes, built from whole parts, with Prev/Next page links. Keeps each
+# page quick to download and light enough for clients to render.
+# 0 = never page (send the whole entry at once).
+full_page_max = 120000
+
 # Default text layout for entries, options: center, wide, narrow. Optionally specify text width
 # This can be selected by the reader
 text_layout = "wide"

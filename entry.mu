@@ -24,7 +24,12 @@ kind = archives.archive_type(zim) if zim else "generic"
 
 if chunk is None and kind == "gutenberg":
     chunk = "parts"
+page_no = None
 if chunk == "full":
+    chunk = None
+elif chunk and chunk[:1] == "p" and chunk[1:].isdigit():
+    # pN = page N of the paged "full" view (see full_pages below)
+    page_no = max(1, int(chunk[1:]))
     chunk = None
 
 
@@ -132,6 +137,41 @@ def nav_line(idx, total, base):
     return "`c" + " · ".join(parts) + "`a"
 
 
+def full_pages(micron, chunks):
+    """Split a large entry's "full" view into pages of whole parts.
+
+    Very large entries (whole books) are slow to download over a mesh and
+    too heavy for some clients to render in one page (MeshChatX freezes on
+    100k+ lines). Pages are built from the existing parts, so they break at
+    the same safe points (never inside a table, preferably at sections).
+    Returns None when the entry fits in one page.
+    """
+    cap = getattr(settings, "full_page_max", 120000)
+    if not cap or common.byte_size(micron) <= cap:
+        return None
+    pages, cur, size = [], [], 0
+    for i, piece in enumerate(chunks, start=1):
+        b = common.byte_size(piece) + 1
+        if cur and size + b > cap:
+            pages.append(cur)
+            cur, size = [], 0
+        cur.append(i)
+        size += b
+    if cur:
+        pages.append(cur)
+    return pages if len(pages) > 1 else None
+
+
+def page_nav(n, count, base):
+    parts = []
+    if n > 1:
+        parts.append(f"`F{theme.NAV}`_`[◀ Prev page`:{page}/entry.mu`{base}|chunk=p{n - 1}]`_`f")
+    parts.append(f"`F{theme.NAV}`_`[Parts`:{page}/entry.mu`{base}|chunk=parts]`_`f")
+    if n < count:
+        parts.append(f"`F{theme.NAV}`_`[Next page ▶`:{page}/entry.mu`{base}|chunk=p{n + 1}]`_`f")
+    return "`c" + " · ".join(parts) + "`a"
+
+
 def layout_line(plain, current):
     parts = []
     for name, label in (("wide", "Wide"), ("narrow", "Narrow"), ("center", "Centered")):
@@ -176,6 +216,7 @@ try:
     plural = "part" if total == 1 else "parts"
     if chunk == "parts" and total == 1:
         chunk = None
+    pages = full_pages(micron, chunks)
 
     print(f">{title}")
 
@@ -186,17 +227,31 @@ try:
         actions.append(f"`F{theme.NAV}`_`[⤓ Micron {size_str}`:{page}/entry.mu`{base}|format=micron]`_`f")
         actions.append(f"`F{theme.NAV}`_`[⤓ HTML {common.human_size(item.size)}`:{page}/entry.mu`{base}|format=html]`_`f")
         print("`c" + " · ".join(actions) + "`a")
-        print(layout_line(plain, "full"))
-        print("-─")
-        print(micron)
-        print("`a")
+        if pages:
+            n = min(page_no or 1, len(pages))
+            group = pages[n - 1]
+            nav = page_nav(n, len(pages), base)
+            print(f"`c`Faaapage {n}/{len(pages)} · parts {group[0]}-{group[-1]} of {total}`f`a")
+            print(nav)
+            print(layout_line(plain, f"p{n}"))
+            print("-─")
+            print("\n".join(chunks[i - 1] for i in group))
+            print("`a")
+            print("-─")
+            print(nav)
+        else:
+            print(layout_line(plain, "full"))
+            print("-─")
+            print(micron)
+            print("`a")
 
     elif chunk == "parts":
         sections = {}
         for level, sec_title, ci in common.section_index(chunks):
             sections.setdefault(ci, []).append(sec_title)
         print(f"`Faaa{size_str} of readable text · {total} {plural}`f")
-        print(f"`F{theme.NAV}`_`[Read full entry`:{page}/entry.mu`{base}|chunk=full]`_`f")
+        full_label = f"Read full entry ({len(pages)} pages)" if pages else "Read full entry"
+        print(f"`F{theme.NAV}`_`[{full_label}`:{page}/entry.mu`{base}|chunk=full]`_`f")
         print(layout_line(plain, "parts"))
         print("")
         print("Select a part to read:")
