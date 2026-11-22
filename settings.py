@@ -32,6 +32,18 @@ page_cache = 604800
 # and a terminal emulator that supports the kitty graphics protocol on the client end, like Konsole, Ghostty, iTerm2, or Kitty
 images = False
 
+# EPUB downloads for Gutenberg books (off by default). Adds a ⤓ EPUB link to
+# book pages, search results and the bookshelf. The EPUB is copied out of the
+# .zim on first request (or built from the book's HTML if the archive has no
+# EPUBs) into NomadNet's storage/files folder, and served from there.
+epub_enabled = False
+# epub_files_dir = None     # override NomadNet's storage/files path
+# epub_subfolder = "books"  # subfolder inside storage/files
+# epub_cache_mb = 2048      # size budget for extracted EPUBs; 0 = unlimited
+# epub_refresh_min = 1      # should match NomadNet's file_refresh_interval
+# epub_fallback = True      # build a simple EPUB from the HTML if the zim has none
+# epub_instant_refresh = False  # True only if NomadNet registers new files instantly
+
 # Accent color for the interface (ascii header, links, navigation, citations)
 # Options: "default" (blue), "red", "orange", "green"
 accent_color = "default"
