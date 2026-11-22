@@ -185,6 +185,10 @@ try:
             actions.append(f"`F{theme.NAV}`_`[⇊ {total} parts`:{page}/entry.mu`{base}|chunk=parts]`_`f")
         actions.append(f"`F{theme.NAV}`_`[⤓ Micron {size_str}`:{page}/entry.mu`{base}|format=micron]`_`f")
         actions.append(f"`F{theme.NAV}`_`[⤓ HTML {common.human_size(item.size)}`:{page}/entry.mu`{base}|format=html]`_`f")
+        if kind == "gutenberg":
+            import epub as epub_helper
+            if epub_helper.enabled():
+                actions.append(f"`F{theme.NAV}`_`[⤓ EPUB`:{page}/epub.mu`{plain}]`_`f")
         print("`c" + " · ".join(actions) + "`a")
         print(layout_line(plain, "full"))
         print("-─")

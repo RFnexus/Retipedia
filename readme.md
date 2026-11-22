@@ -80,6 +80,24 @@ https://browse.library.kiwix.org/#lang=&q=medline
 
 Retipedia currently supports Wikipedia in all languages, Gutenberg, StackExchange in all languages, iFixIt and MedlinePlus archives, and also implements a generic .zim parser for anything else. PRs are welcome
 
+### EPUB downloads
+
+Gutenberg books can offer a ⤓ EPUB download on the book page, in search results and on the bookshelf. Set `epub_enabled = True` in `settings.py` to turn it on.
+
+Nothing is pre-built. The first time someone asks for a book, its EPUB is copied out of the .zim (Gutenberg archives built with `-f epub` or `-f all` include them) into NomadNet's `storage/files/books` folder, and served from there. If an archive has no EPUBs, a simple text EPUB is built from the book's HTML instead. Large books get a choice of the full EPUB or a smaller text-only one.
+
+NomadNet only notices new files every `file_refresh_interval` minutes, so a freshly extracted EPUB can take up to a minute to become downloadable; the page says so. Set `epub_refresh_min` to match your node's interval.
+
+To check whether an archive contains EPUBs, and to clear extracted ones:
+
+```
+python3 check_zim_epubs.py /path/to/gutenberg.zim
+python3 clean_epubs.py          removes every extracted EPUB
+python3 clean_epubs.py 30       removes only EPUBs untouched for 30+ days
+```
+
+`zimdump` (zim-tools) is used as an optional fallback for archives without Retipedia's catalog index.
+
 ### Image support
 ![A screenshot of iFixIt in Retipedia](https://rns.recipes/storage/forum/aIFyJeZtTVDmByWqQsllEvskfS2DBPxDrxS8coJu.png)
 ![A screenshot of Wikipedia maxi in Retipedia](https://rns.recipes/storage/forum/KFOGWWo685zqZLyptLr7NQ4n1UKoBLUBayGxZuJ2.png)

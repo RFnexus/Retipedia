@@ -5,6 +5,7 @@ import settings
 import theme
 import archives
 from formatting import gutenberg
+import epub
 
 page = archives.page_root()
 
@@ -129,7 +130,10 @@ for i, row in enumerate(rows[start:start + per_page], start=start + 1):
         title = gutenberg.label(row[0])
         path = gutenberg.book_entry(archive, row[0], row[3], ext)
         if path:
-            line = f"{i}. `F{theme.LINK}`_`[{title}`:{page}/entry.mu`zim={zim}|{gutenberg.entry_fields(path)}]`_`f"
+            fields = gutenberg.entry_fields(path)
+            line = f"{i}. `F{theme.LINK}`_`[{title}`:{page}/entry.mu`zim={zim}|{fields}]`_`f"
+            if epub.enabled():
+                line += f" `F{theme.NAV}`_`[⤓`:{page}/epub.mu`zim={zim}|{fields}]`_`f"
         else:
             line = f"{i}. {title}"
         if row[1]:

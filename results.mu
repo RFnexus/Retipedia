@@ -94,7 +94,12 @@ else:
                     size_str = f"{gutenberg.label(author)} · {size_str}"
             link = f"{page}/entry.mu`zim={zim}|{fields}"
             parts = link + "|chunk=parts"
-            print(f"{start + shown}. `F{theme.LINK}`_`[{entry_title}`:{link}]`_`f `Faaa{size_str}`f · `F{theme.NAV}`_`[parts`:{parts}]`_`f")
+            line_out = f"{start + shown}. `F{theme.LINK}`_`[{entry_title}`:{link}]`_`f `Faaa{size_str}`f · `F{theme.NAV}`_`[parts`:{parts}]`_`f"
+            if is_gutenberg:
+                import epub
+                if epub.enabled():
+                    line_out += f" · `F{theme.NAV}`_`[⤓ EPUB`:{page}/epub.mu`zim={zim}|{fields}]`_`f"
+            print(line_out)
 
         print("")
         safe_query = search_query.replace("`", "").replace("|", " ").replace("]", "")
